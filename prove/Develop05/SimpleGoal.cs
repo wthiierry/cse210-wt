@@ -1,27 +1,19 @@
-using System;
+public class SimpleGoal : Goal{
 
-class SimpleGoal : Goals
-{
-    private int score;
-    private bool isComplete;
-    private string goalType;
-
-    public SimpleGoal()
-    {
-
-    }
-    public override bool IsItComplete()
-    {
-        return true;
+    public SimpleGoal(bool isNew): base(isNew){
+        //set to 1.  meaning as soon as they get 1 done, it's complete.  
+        base.SetNumMax(1);
     }
 
-    public override int RecoderEvent()
-    {
-        return 1;
+    public override void RecordEvent(){
+        //simply set to complete and add it to the base class
+        base.SetComplete(true);
+        base.SetNumDone(1);
     }
-
-    public override void ToCSVRecord()
+    
+    public override string GetXofYSummary()
     {
-        return "text";
+        //return empty since this is only used for checklist type.  
+        return "";
     }
 }

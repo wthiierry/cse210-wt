@@ -1,116 +1,104 @@
-using System;
+public abstract class Goal{
+    //goal name
+    private string _goal;
+    //goal description
+    private string _description;
+    //tracks if the goal has been completed.  used to display checkmarks if applicable
+    private bool _complete = false;
+    //how many points the goal is worth
+    private int _points = 0;
+    //how many bonus points user recieves if number of completions meets the max criteria
+    private int _bonusPoints = 0;
+    //tracks how many times they've compelted the goal (used for checklist)
+    private int _numDone = 0;
+    //sets the trigger to determine if they've completed the goal
+    private int _numMax = 0;
+    //used to decide if it's a new goal or one read in from file (decides if we need to ask user questions or not)
+    private bool _isNew;
 
-public abstract class Goals
-{
-    private static int score = 0;
-    private static int totalScore = 0;
-    string name = string.Empty;
-    string description = string.Empty;
-    string completeSymbol = string.Empty;
-    int bonus;
-    int bonusScore;
-    bool isComplete;
-    string goalString = string.Empty;
-    static List<string> goalList = new List<string>();
-    List<int> scoreList = new List<int>();
-    string type = string.Empty;
-
-    public void setScore()
-    {
-        Console.Write("What is the amount of points associated with this goal? ");
-        score = int.Parse(Console.ReadLine());
-    }
-
-    public void setType(string _type)
-    {
-        type = _type;
-    }
-
-    public string getType()
-    {
-        return type;
-    }
-    public int getScore()
-    {
-        return score;
-    }
-
-    public void setTotalScore()
-    {
-        totalScore = totalScore + score;
-    }
-
-    public int getTotalScore()
-    {
-        return totalScore;
-    }
-
-    public void setGoalName()
-    {
-        Console.Write("What is the name of your goal? ");
-        name = Console.ReadLine();
-    }
-    public void setGoalDescription()
-    {
-        Console.Write("What is a short description of it? ");
-        description = Console.ReadLine();
-    }
-
-    public static void printTotalScore()
-    {
-        Console.WriteLine($"You have {totalScore} points.");
-    }
-
-    public abstract bool IsItComplete();
-    public abstract int RecoderEvent();
-    public abstract void ToCSVRecord();
-    public void GoalToString()
-    {
-        if (type == "Simple" || type == "Eternal")
-        {
-            goalString = "[] " + name + " (" + description + ")";
+    public Goal(bool isNew){
+        _isNew = isNew;
+        //using _isNew as a trigger to determine if the goal has been created before or if we are reading an existing in from a file (which means we don't need to ask user for all the info, just reset all the attributes)
+        if (_isNew){
+            Console.Clear();
+            Console.WriteLine("What is the name of your goal?  ");
+            _goal = Console.ReadLine();
+            Console.WriteLine("What is a short description of it?  ");
+            _description = Console.ReadLine();
+            //loop until user gives valid integer for input
+            Console.WriteLine("What is the amount of points associated with this goal?  ");
+            //_points = int.Parse(Console.ReadLine());
+            //check if it can parse to integer, if not (false), loop till they get it right
+            while (!int.TryParse(Console.ReadLine(),out _points)){
+                Console.Clear();
+                Console.WriteLine("Please enter a valid number.\nWhat is the amount of points associated with this goal?  ");
+            }
         }
-        else
-        {
-            goalString = "[] " + name + " (" + description + ") -- Currently completed: 0/" + bonus;
+    }
+
+    //OVERRIDES
+    //each child class records things slightly differently.  
+    public abstract void RecordEvent();
+    //child class handles diff.  E.g. Simple doesn't keep track of x complete out of y times to signoff the goal
+    public abstract string GetXofYSummary();
+    public virtual string GetCheckBox(){
+        //return an X to mark it as complete
+        if (_complete){
+            return "X";
         }
-
-        setGoalToList();
+        else{
+            return " ";
+        }
     }
 
-    public void setGoalToList()
-    {
-        goalList.Add(goalString);
+    //GETTERS
+    public bool GetComplete(){
+        return _complete;
     }
-    public static void GoalToList()
-    {
-        int index = 1;
-        Console.WriteLine("The goals are: ");
-        foreach (string item in goalList)
-        {
-            Console.WriteLine($"{index.ToString()} {item}");
-            index++;
-        };
+    public string GetGoal(){
+        return _goal;
     }
-    public List<int> ScoreToList()
-    {
-        return scoreList;
+    public string GetDescription(){
+        return _description;
     }
-    public List<string> TypeToList()
-    {
-        return goalList;
+    public virtual int GetPoints(){
+        return _points;
     }
-    public void SaveGoals()
-    {
-
+    public int GetBonus(){
+        return _bonusPoints;
+    }
+    public int GetNumDone(){
+        return _numDone;
+    }
+    public int GetNumMax(){
+        return _numMax;
     }
 
-    public static string CreateFile()
-    {
-        Console.Write("What is the filename fo the goal file? ");
-        string filename = Console.ReadLine();
-        using (FileStream fs = File.Create(filename)) { }
-        return filename;
+    //SETTERS
+    public void SetBonusPoints(int bonusPoints){
+        _bonusPoints = bonusPoints;
     }
-
+    public void SetGoal(string goal){
+        _goal = goal;
+    }
+    public void SetDescription(string description){
+        _description = description;
+    }
+    public void SetPoints(int points){
+        _points = points;
+    }
+    public void SetComplete(bool isComplete){
+        if (isComplete){
+            _complete = true;
+        }
+        else{
+            _complete = false;
+        }
+    }
+    public void SetNumDone(int numDone){
+        _numDone += numDone;
+    }
+    public void SetNumMax(int numMax){
+        _numMax = numMax;
+    }
 }
